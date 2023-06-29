@@ -95,8 +95,6 @@ int main(int argc, char** argv) {
             free(copied_data);
             copied_data = strdup(new_data);
         }
-
-        printf("%s", copied_data);
         Sleep(1000);  // Sleep for 1 second (1000 milliseconds)
     }
 
