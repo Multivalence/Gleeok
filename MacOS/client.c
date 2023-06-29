@@ -87,8 +87,6 @@ int main (int argc, char **argv) {
             free(copied_data);
             copied_data = strdup(new_data);
         }
-
-        printf("%s", copied_data);
         sleep(1);
     }
 }
