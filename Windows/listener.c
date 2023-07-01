@@ -51,6 +51,9 @@ void handleClientMessage(Client *clients, int index, fd_set *active_sockets) {
 }
 
 int main(int argc, char **argv) {
+
+    setbuf(stdout, NULL);
+
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         perror("WSAStartup failed");
