@@ -30,7 +30,6 @@ char* get_clipboard_text() {
     }
     
     fclose(file);
-    system("rm tmp.txt");
     return buffer;
 }
 

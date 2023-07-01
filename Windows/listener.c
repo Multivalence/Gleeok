@@ -23,7 +23,6 @@ int set_clipboard_text(char *text) {
     fclose(file);
 
     system("type tmp2.txt | clip"); // 'type' command reads the file content and 'clip' command copies it to the clipboard
-    system("del tmp2.txt");
 
     return 1;
 }

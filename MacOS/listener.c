@@ -28,7 +28,6 @@ int set_clipboard_text(char *text) {
     fclose(file); // Close the file
 
     system("cat tmp2.txt | pbcopy"); // pbcopy command takes the file content into clipboard
-    system("rm tmp2.txt"); // Remove the temporary file
 
     return 1;
 }
@@ -65,6 +64,8 @@ void handleClientMessage(Client *clients, int index, fd_set *active_sockets) {
 }
 
 int main (int argc, char ** argv) {
+
+    setbuf(stdout, NULL);
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <Port>\n", argv[0]);
