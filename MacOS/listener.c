@@ -20,11 +20,30 @@ typedef struct {
 
 int newsockfd;
 
+
+char* normalize_newlines(char* text) {
+    char* result = strdup(text);
+    char* src = text;
+    char* dest = result;
+
+    while (*src) {
+        if (*src == '\r') { 
+            src++;  // Skip '\r' character
+            if (*src != '\n') *dest++ = '\n';  // Convert to '\n' if not followed by '\n'
+        } else {
+            *dest++ = *src++;
+        }
+    }
+    *dest = '\0';
+    return result;
+}
+
 int set_clipboard_text(char *text) {
+    char* normalized_text = normalize_newlines(text);
     FILE* file = fopen("tmp2.txt", "w"); // Open a temporary file to write
     if (!file) return 0; // If file could not be opened, return FALSE
 
-    fprintf(file, "%s", text); // Write the text to file
+    fprintf(file, "%s", normalized_text); // Write the text to file
     fclose(file); // Close the file
 
     system("cat tmp2.txt | pbcopy"); // pbcopy command takes the file content into clipboard
@@ -33,11 +52,12 @@ int set_clipboard_text(char *text) {
 }
 
 
+
 void handleClientMessage(Client *clients, int index, fd_set *active_sockets) {
 
-    char buffer[1024];
+    char buffer[5000];
 
-    int len = recv(clients[index].sockfd, buffer, 1024, 0);
+    int len = recv(clients[index].sockfd, buffer, 5000, 0);
 
     if (len == -1) {
         perror("recv");
@@ -52,7 +72,7 @@ void handleClientMessage(Client *clients, int index, fd_set *active_sockets) {
 
     else {
         buffer[len] = '\0';
-        printf("Incoming Copy: %s", buffer);
+        printf("\nIncoming Copy: %s\n", buffer);
 
         if (!set_clipboard_text(buffer)){
             fprintf(stderr, "Failed to set clipboard text.\n");
@@ -102,6 +122,8 @@ int main (int argc, char ** argv) {
         perror ("listen call failed");
         exit (1);
     }
+
+    printf("\nReady for incoming connections on port %d.", port);
 
     Client clients[MAX_CLIENTS];
 

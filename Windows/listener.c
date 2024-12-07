@@ -15,11 +15,29 @@ typedef struct {
 
 int newsockfd;
 
+char* normalize_newlines(char* text) {
+    char* result = strdup(text);
+    char* src = text;
+    char* dest = result;
+
+    while (*src) {
+        if (*src == '\r') { 
+            src++;  // Skip '\r' character
+            if (*src != '\n') *dest++ = '\n';  // Convert to '\n' if not followed by '\n'
+        } else {
+            *dest++ = *src++;
+        }
+    }
+    *dest = '\0';
+    return result;
+}
+
 int set_clipboard_text(char *text) {
+    char* normalized_text = normalize_newlines(text);
     FILE* file = fopen("tmp2.txt", "w");
     if (!file) return 0;
 
-    fprintf(file, "%s", text);
+    fprintf(file, "%s", normalized_text);
     fclose(file);
 
     system("type tmp2.txt | clip"); // 'type' command reads the file content and 'clip' command copies it to the clipboard
@@ -28,9 +46,9 @@ int set_clipboard_text(char *text) {
 }
 
 void handleClientMessage(Client *clients, int index, fd_set *active_sockets) {
-    char buffer[1024];
+    char buffer[5000];
 
-    int len = recv(clients[index].sockfd, buffer, 1024, 0);
+    int len = recv(clients[index].sockfd, buffer, 5000, 0);
 
     if (len == SOCKET_ERROR) {
         perror("recv");
@@ -42,7 +60,7 @@ void handleClientMessage(Client *clients, int index, fd_set *active_sockets) {
         clients[index].sockfd = INVALID_SOCKET;
     } else {
         buffer[len] = '\0';
-        printf("Incoming Copy: %s", buffer);
+        printf("\nIncoming Copy: %s\n", buffer);
 
         if (!set_clipboard_text(buffer)) {
             fprintf(stderr, "Failed to set clipboard text.\n");
